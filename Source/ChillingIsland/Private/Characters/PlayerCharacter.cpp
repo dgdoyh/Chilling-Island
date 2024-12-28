@@ -95,6 +95,18 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::Jump()
 {
-	Super::Jump();
+	if (CanJump)
+	{
+		Super::Jump();
+		
+		CanJump = false;
+
+		// Cannot jump until it gets cooled down
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
+		{
+			CanJump = true;
+		}, JumpCoolTime, false);
+	}
 }
 

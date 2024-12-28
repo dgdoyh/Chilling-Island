@@ -27,5 +27,8 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		// Get player's current speed
 		RunningSpeed = UKismetMathLibrary::VSizeXY(PlayerMovementComponent->Velocity);
+
+		// Get whether player is falling or not
+		IsFalling = PlayerMovementComponent->IsFalling();
 	}
 }
