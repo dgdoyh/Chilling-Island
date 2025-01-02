@@ -9,6 +9,7 @@ class UInputMappingContext;
 class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
+class AItem;
 
 UCLASS()
 class CHILLINGISLAND_API APlayerCharacter : public ACharacter
@@ -38,11 +39,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* JumpAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* InteractAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Setting)
 	float JumpCoolTime = 1.f;
 	
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void Interact(const FInputActionValue& Value);
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -52,4 +57,10 @@ private:
 	UCameraComponent* ViewCamera;
 
 	bool CanJump = true;
+
+	UPROPERTY(VisibleInstanceOnly) // Visible in detail panel
+	AItem* OverlappingItem;
+
+public: // Setters
+	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 };

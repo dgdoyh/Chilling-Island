@@ -1,5 +1,6 @@
 #include "Items/Item.h"
 #include "Components/SphereComponent.h"
+#include "Characters/PlayerCharacter.h"
 
 AItem::AItem()
 {
@@ -23,23 +24,23 @@ void AItem::BeginPlay()
 	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
 }
 
-void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	const FString OtherActorName = OtherActor->GetName();
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
 
-	if (GEngine)
+	if (PlayerCharacter)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Red, OtherActorName);
+		PlayerCharacter->SetOverlappingItem(this);
 	}
 }
 
-void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (GEngine)
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
+
+	if (PlayerCharacter)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Blue, TEXT("End overlapping"));
+		PlayerCharacter->SetOverlappingItem(nullptr);
 	}
 }
 
