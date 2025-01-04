@@ -1,4 +1,8 @@
 #include "Characters/PlayerCharacter.h"
+
+#include <string>
+
+#include "AsyncTreeDifferences.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Components/InputComponent.h"
@@ -80,9 +84,31 @@ void APlayerCharacter::Interact(const FInputActionValue& Value)
 {
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
 
+	// ** Instant code **
 	if (OverlappingWeapon)
 	{
-		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
+		// Destroy the currently equipped weapon
+		if (EquippedWeapon)
+		{
+			EquippedWeapon->UnEquip();
+		}
+		
+		// Equip one-handed weapon
+		if (OverlappingWeapon->GetWeaponType() == EWeaponTypes::EWT_OneHandedWeapon)
+		{
+			OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
+			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+		}
+		
+		// Equip two-Handed weapon
+		if (OverlappingWeapon->GetWeaponType() == EWeaponTypes::EWT_TwoHandedWeapon)
+		{
+			OverlappingWeapon->Equip(GetMesh(), FName("TwoHandsSocket"));
+			CharacterState = ECharacterState::ECS_EquippedTwoHandedWeapon;
+		}
+
+		// Set equipped weapon
+		EquippedWeapon = OverlappingWeapon;
 	}
 }
 

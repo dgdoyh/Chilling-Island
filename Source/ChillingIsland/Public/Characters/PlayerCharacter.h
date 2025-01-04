@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "CharacterStates.h"
+#include "Items/Equipments/Weapon.h"
 #include "PlayerCharacter.generated.h"
 
 class UInputMappingContext;
@@ -50,6 +52,8 @@ protected:
 	void Interact(const FInputActionValue& Value);
 
 private:
+	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+	
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* CameraBoom;
 
@@ -61,6 +65,13 @@ private:
 	UPROPERTY(VisibleInstanceOnly) // Visible in detail panel
 	AItem* OverlappingItem;
 
-public: // Setters
+	UPROPERTY(VisibleInstanceOnly)
+	AWeapon* EquippedWeapon;
+
+public:
+	// Setters
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
+	
+	// Getters
+	FORCEINLINE ECharacterState GetCharacterState() { return CharacterState; }
 };

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PlayerCharacter.h"
 #include "Animation/AnimInstance.h"
+#include "CharacterStates.h"
 #include "PlayerAnimInstance.generated.h"
 
 UCLASS()
@@ -25,4 +25,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	bool IsFalling;
+
+	UPROPERTY(BlueprintReadOnly, Category = CharacterState)
+	ECharacterState CharacterState;
 };

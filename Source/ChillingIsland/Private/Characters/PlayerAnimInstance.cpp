@@ -30,5 +30,8 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 		// Get whether player is falling or not
 		IsFalling = PlayerMovementComponent->IsFalling();
+
+		// Update player state
+		CharacterState = PlayerCharacter->GetCharacterState();
 	}
 }
