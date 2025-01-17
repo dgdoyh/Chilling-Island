@@ -1,8 +1,5 @@
 #include "Characters/PlayerCharacter.h"
 
-#include <string>
-
-#include "AsyncTreeDifferences.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Components/InputComponent.h"
@@ -54,21 +51,24 @@ void APlayerCharacter::BeginPlay()
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
-	// Get movement vector from input
-	const FVector2D MoveVector = Value.Get<FVector2D>();
+	if (ActionState == EActionState::EAS_Attacking) return;
+	if (Controller && (Value.GetMagnitude() != 0.f))
+	{
+		// Get movement vector from input
+		const FVector2D MoveVector = Value.Get<FVector2D>();
 
-	// Get player controller's yaw rotation value
-	const FRotator Rotation = Controller->GetControlRotation();
-	const FRotator YawRotation(0.f, Rotation.Yaw,0.f);
+		// Get player controller's yaw rotation value
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0.f, Rotation.Yaw,0.f);
 
-	// Get directional vector of the controller
-	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		// Get directional vector of the controller
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 	
-	// Move player based on the controller's yaw rotation
-	AddMovementInput(ForwardDirection, MoveVector.Y);
-	AddMovementInput(RightDirection, MoveVector.X);
-	
+		// Move player based on the controller's yaw rotation
+		AddMovementInput(ForwardDirection, MoveVector.Y);
+		AddMovementInput(RightDirection, MoveVector.X);
+	}
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)

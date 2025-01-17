@@ -6,6 +6,12 @@
 
 class USphereComponent;
 
+enum class EItemState : uint8
+{
+	EIS_Hovering,
+	EIS_Equipped
+};
+
 UCLASS()
 class CHILLINGISLAND_API AItem : public AActor
 {
@@ -24,10 +30,18 @@ protected:
 	UFUNCTION()
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	float TransformedSin();
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* ItemMesh;
+
+	EItemState ItemState = EItemState::EIS_Hovering;
 	
 private:
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent* Sphere;
+
+	float Amplitude = 0.5f;
+	float TimeConstant = 5.f;
+	float RunningTime;
 };
