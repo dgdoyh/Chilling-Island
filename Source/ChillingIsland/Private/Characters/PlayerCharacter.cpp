@@ -1,5 +1,4 @@
 #include "Characters/PlayerCharacter.h"
-
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Components/InputComponent.h"
@@ -170,7 +169,8 @@ void APlayerCharacter::AttackEnd()
 bool APlayerCharacter::CanAttack()
 {
 	return ActionState == EActionState::EAS_Unoccupied &&
-		CharacterState != ECharacterState::ECS_Unequipped;
+		CharacterState != ECharacterState::ECS_Unequipped &&
+			!GetCharacterMovement()->IsFalling();
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
