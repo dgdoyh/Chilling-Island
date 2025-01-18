@@ -127,7 +127,17 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 void APlayerCharacter::PlayAttackMontage()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	UAnimMontage* AttackMontage = nullptr;
 
+	if (CharacterState == ECharacterState::ECS_EquippedOneHandedWeapon && OneHandedAttackMontage)
+	{
+		AttackMontage = OneHandedAttackMontage;
+	}
+	if (CharacterState == ECharacterState::ECS_EquippedTwoHandedWeapon && TwoHandedAttackMontage)
+	{
+		AttackMontage = TwoHandedAttackMontage;
+	}
+	
 	if (AnimInstance && AttackMontage)
 	{
 		AnimInstance->Montage_Play(AttackMontage);

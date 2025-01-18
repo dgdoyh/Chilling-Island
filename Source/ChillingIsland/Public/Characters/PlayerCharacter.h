@@ -83,7 +83,9 @@ private:
 
 	// Animation Montages
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
-	UAnimMontage* AttackMontage;
+	UAnimMontage* OneHandedAttackMontage;
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	UAnimMontage* TwoHandedAttackMontage;
 
 public:
 	// Setters
