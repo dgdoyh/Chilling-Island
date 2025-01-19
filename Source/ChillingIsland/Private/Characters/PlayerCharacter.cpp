@@ -50,23 +50,25 @@ void APlayerCharacter::BeginPlay()
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
-	if (ActionState == EActionState::EAS_Attacking) return;
-	if (Controller && (Value.GetMagnitude() != 0.f))
+	if (ActionState == EActionState::EAS_Unoccupied)
 	{
-		// Get movement vector from input
-		const FVector2D MoveVector = Value.Get<FVector2D>();
+		if (Controller && (Value.GetMagnitude() != 0.f))
+		{
+			// Get movement vector from input
+			const FVector2D MoveVector = Value.Get<FVector2D>();
 
-		// Get player controller's yaw rotation value
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0.f, Rotation.Yaw,0.f);
+			// Get player controller's yaw rotation value
+			const FRotator Rotation = Controller->GetControlRotation();
+			const FRotator YawRotation(0.f, Rotation.Yaw,0.f);
 
-		// Get directional vector of the controller
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+			// Get directional vector of the controller
+			const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+			const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 	
-		// Move player based on the controller's yaw rotation
-		AddMovementInput(ForwardDirection, MoveVector.Y);
-		AddMovementInput(RightDirection, MoveVector.X);
+			// Move player based on the controller's yaw rotation
+			AddMovementInput(ForwardDirection, MoveVector.Y);
+			AddMovementInput(RightDirection, MoveVector.X);
+		}
 	}
 }
 
@@ -83,6 +85,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 void APlayerCharacter::Interact(const FInputActionValue& Value)
 {
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
+	OverlappingItem = nullptr;
 
 	// ** Instant code **
 	if (OverlappingWeapon)
@@ -91,6 +94,7 @@ void APlayerCharacter::Interact(const FInputActionValue& Value)
 		if (EquippedWeapon)
 		{
 			EquippedWeapon->UnEquip();
+			CharacterState = ECharacterState::ECS_Unequipped;
 		}
 		
 		// Equip one-handed weapon
@@ -120,6 +124,28 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 		PlayAttackMontage();
 
 		ActionState = EActionState::EAS_Attacking;
+	}
+}
+
+void APlayerCharacter::ArmDisarm(const FInputActionValue& Value)
+{
+	if (CanDisarm())
+	{
+		if(GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("Disarm"));
+		
+		PlayArmMontage(FName("Disarm"));
+
+		ActionState = EActionState::EAS_Arming;
+	}
+	else if (CanArm())
+	{
+		if(GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, TEXT("arm"));	
+		
+		PlayArmMontage(FName("Arm"));
+
+		ActionState = EActionState::EAS_Arming;
 	}
 }
 
@@ -161,6 +187,30 @@ void APlayerCharacter::PlayAttackMontage()
 	}
 }
 
+void APlayerCharacter::PlayArmMontage(FName SectionName)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	UAnimMontage* ArmMontage = nullptr;
+
+	// Play one-handed weapon equip montage
+	if (EquippedWeapon->GetWeaponType() == EWeaponTypes::EWT_OneHandedWeapon && OneHandedArmMontage)
+	{
+		ArmMontage = OneHandedArmMontage;
+	}
+
+	// Play two-handed weapon equip montage
+	if (EquippedWeapon->GetWeaponType() == EWeaponTypes::EWT_TwoHandedWeapon && TwoHandedArmMontage)
+	{
+		ArmMontage = TwoHandedArmMontage;
+	}
+	
+	if (AnimInstance && ArmMontage)
+	{
+		AnimInstance->Montage_Play(ArmMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, ArmMontage);
+	}
+}
+
 void APlayerCharacter::AttackEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied;
@@ -168,9 +218,43 @@ void APlayerCharacter::AttackEnd()
 
 bool APlayerCharacter::CanAttack()
 {
-	return ActionState == EActionState::EAS_Unoccupied &&
-		CharacterState != ECharacterState::ECS_Unequipped &&
-			!GetCharacterMovement()->IsFalling();
+	return ActionState == EActionState::EAS_Unoccupied
+	&& CharacterState != ECharacterState::ECS_Unequipped
+	&& !GetCharacterMovement()->IsFalling();
+}
+
+void APlayerCharacter::ArmEnd()
+{
+	if (EquippedWeapon->GetWeaponType() == EWeaponTypes::EWT_OneHandedWeapon)
+	{
+		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+		ActionState = EActionState::EAS_Unoccupied;
+	}
+	else if (EquippedWeapon->GetWeaponType() == EWeaponTypes::EWT_TwoHandedWeapon)
+	{
+		CharacterState = ECharacterState::ECS_EquippedTwoHandedWeapon;
+		ActionState = EActionState::EAS_Unoccupied;
+	}
+}
+
+void APlayerCharacter::DisarmEnd()
+{
+	CharacterState = ECharacterState::ECS_Unequipped;
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+bool APlayerCharacter::CanDisarm()
+{
+	return ActionState == EActionState::EAS_Unoccupied
+	&& CharacterState != ECharacterState::ECS_Unequipped
+	&& EquippedWeapon;
+}
+
+bool APlayerCharacter::CanArm()
+{
+	return ActionState == EActionState::EAS_Unoccupied
+	&& CharacterState == ECharacterState::ECS_Unequipped
+	&& EquippedWeapon;
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -190,12 +274,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Interact);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
+		EnhancedInputComponent->BindAction(ArmAction, ETriggerEvent::Triggered, this, &APlayerCharacter::ArmDisarm);
 	}
 }
 
 void APlayerCharacter::Jump()
 {
-	if (CanJump)
+	if (CanJump && ActionState == EActionState::EAS_Unoccupied)
 	{
 		Super::Jump();
 		

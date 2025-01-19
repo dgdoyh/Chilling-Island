@@ -13,6 +13,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class AItem;
 class UAnimMontage;
+class AWeapon;
 
 UCLASS()
 class CHILLINGISLAND_API APlayerCharacter : public ACharacter
@@ -48,6 +49,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* AttackAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* ArmAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Setting)
 	float JumpCoolTime = 1.f;
 	
@@ -55,16 +59,29 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
+	void ArmDisarm(const FInputActionValue& Value);
 
 	void PlayAttackMontage();
+	void PlayArmMontage(FName SectionName);
 	
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
+	
 	bool CanAttack();
+
+	UFUNCTION(BlueprintCallable)
+	void ArmEnd();
+	UFUNCTION(BlueprintCallable)
+	void DisarmEnd();
+	
+	bool CanDisarm();
+	bool CanArm();
 
 private:
 	// States
+	UPROPERTY(VisibleInstanceOnly)
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+	UPROPERTY(VisibleInstanceOnly)
 	EActionState ActionState = EActionState::EAS_Unoccupied;
 	
 	UPROPERTY(VisibleAnywhere)
@@ -78,7 +95,7 @@ private:
 	UPROPERTY(VisibleInstanceOnly) // Visible in detail panel
 	AItem* OverlappingItem;
 
-	UPROPERTY(VisibleInstanceOnly)
+	UPROPERTY(VisibleAnywhere, Category = Weapon)
 	AWeapon* EquippedWeapon;
 
 	// Animation Montages
@@ -86,6 +103,11 @@ private:
 	UAnimMontage* OneHandedAttackMontage;
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* TwoHandedAttackMontage;
+	
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	UAnimMontage* OneHandedArmMontage;
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	UAnimMontage* TwoHandedArmMontage;
 
 public:
 	// Setters
