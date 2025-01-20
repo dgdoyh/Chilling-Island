@@ -70,7 +70,11 @@ protected:
 	bool CanAttack();
 
 	UFUNCTION(BlueprintCallable)
+	void Arm();
+	UFUNCTION(BlueprintCallable)
 	void ArmEnd();
+	UFUNCTION(BlueprintCallable)
+	void Disarm();
 	UFUNCTION(BlueprintCallable)
 	void DisarmEnd();
 	

@@ -11,6 +11,7 @@ class CHILLINGISLAND_API AWeapon : public AItem
 	GENERATED_BODY()
 
 public:
+	void AttachMeshToSocket(USceneComponent* InParent, FName InSocketName);
 	void Equip(USceneComponent* InParent, FName InSocketName);
 	void UnEquip();
 	

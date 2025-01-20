@@ -223,6 +223,21 @@ bool APlayerCharacter::CanAttack()
 	&& !GetCharacterMovement()->IsFalling();
 }
 
+void APlayerCharacter::Arm()
+{
+	if (EquippedWeapon)
+	{
+		if (EquippedWeapon->GetWeaponType() == EWeaponTypes::EWT_OneHandedWeapon)
+		{
+			EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("RightHandSocket"));
+		}
+		else if (EquippedWeapon->GetWeaponType() == EWeaponTypes::EWT_TwoHandedWeapon)
+		{
+			EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("TwoHandsSocket"));
+		}
+	}
+}
+
 void APlayerCharacter::ArmEnd()
 {
 	if (EquippedWeapon->GetWeaponType() == EWeaponTypes::EWT_OneHandedWeapon)
@@ -234,6 +249,21 @@ void APlayerCharacter::ArmEnd()
 	{
 		CharacterState = ECharacterState::ECS_EquippedTwoHandedWeapon;
 		ActionState = EActionState::EAS_Unoccupied;
+	}
+}
+
+void APlayerCharacter::Disarm()
+{
+	if (EquippedWeapon)
+	{
+		if (EquippedWeapon->GetWeaponType() == EWeaponTypes::EWT_OneHandedWeapon)
+		{
+			EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("SpineSocket_OneHanded"));
+		}
+		else if (EquippedWeapon->GetWeaponType() == EWeaponTypes::EWT_TwoHandedWeapon)
+		{
+			EquippedWeapon->AttachMeshToSocket(GetMesh(), FName("SpineSocket_TwoHanded"));
+		}
 	}
 }
 
