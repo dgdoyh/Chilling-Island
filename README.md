@@ -3,7 +3,8 @@
 ## Description
 - Genre: 3D Third-Person Survival Game
 - Tools: Unreal Engine 5 and C++
-- Status: Personal project in progress
+- Project Type: Solo project (@dgdoyh)
+- Status: In progress
 - Survive alone on a cold, deserted island!
 
 <br/>
